@@ -1,21 +1,20 @@
-
-+storage/loading                                        ### - 9:00
-
-
-standalone                                             ### - 11:00
-permissions
-
-use k-fold when sample size >= 60, target first, other commented placeholders if exist                      ### - 12:00    
-                                                       
-support for excel files                                ### - 13:00
-polish ui, icon, top bar, style target column, tips                               ### - 14:00
-                                                           
-incorrect data handling                                ### - 15:00    
--duplicates                                            
--zeroes                                                     
--wrong format                                               
--reocurring column names
+streamlit order of execution
+read abt python classes
+ui
+acc only reports
+try increasing reg_param (cov matrix rank warning)
+build (CI/CD)
 
 
+standard scaler: should i store it?
 
-proper result screen with graphs and stats             ### -     
+incorrect data handling:                                                                    
+-duplicates                                                                                     
+-wrong format                                                                                   
+-reocurring column names                                                                        
+                                                                                                
+k-fold on larger sample
+excel support
+                                                                                                
+                                                                                                
+proper result screen with graphs and stats                                                      
