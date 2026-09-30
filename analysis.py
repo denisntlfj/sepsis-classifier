@@ -13,8 +13,8 @@ class DataSet():
     #csv edit: place target 1st
     scaler = StandardScaler() #read about this one
 
-    def __init__(self,df):
-        self.df = df
+    def __init__(self, file):
+        self.df = pd.read_csv(file)
         self.X = df.iloc[:,1:]
         self.y = df.iloc[:,0]
 
@@ -88,8 +88,3 @@ class DataSet():
             )
 
         return str
-
-
-#df = pd.read_csv("data.csv")
-#ds = DataSet(df)
-#print(ds.report())
