@@ -1,20 +1,12 @@
-streamlit order of execution
-read abt python classes
-ui
-acc only reports
-try increasing reg_param (cov matrix rank warning)
+saving the editing table
 build (CI/CD)
 
-
-standard scaler: should i store it?
+excel support
+try increasing reg_param (cov matrix rank warning)
+bring back qda as an option
+k-fold on larger sample
 
 incorrect data handling:                                                                    
 -duplicates                                                                                     
 -wrong format                                                                                   
 -reocurring column names                                                                        
-                                                                                                
-k-fold on larger sample
-excel support
-                                                                                                
-                                                                                                
-proper result screen with graphs and stats                                                      

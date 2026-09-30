@@ -4,19 +4,24 @@ from enum import Enum
 import pandas as pd
 import numpy as np
 
-from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis, LinearDiscriminantAnalysis
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import LeaveOneOut, KFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report
 
 class DataSet():
     #csv edit: place target 1st
-    scaler = StandardScaler() #read about this one
+    scaler = StandardScaler()
+    lda = LinearDiscriminantAnalysis()
 
     def __init__(self, file):
         self.df = pd.read_csv(file)
-        self.X = df.iloc[:,1:]
-        self.y = df.iloc[:,0]
+        self.X = self.df.iloc[:,1:]
+        self.y = self.df.iloc[:,0]
+        self.init_calculations()
+
+    def init_calculations(self):
+        self.acc = self.evaluate(True)
 
     def sample(self):
         keys = self.df.keys()[1:]
@@ -24,7 +29,7 @@ class DataSet():
         empty_df = pd.DataFrame(empty_dict)
         return empty_df
 
-    def evaluate(self,analysis, AccOnly = False):
+    def evaluate(self, acc_only = False):
         y_true = []
         y_pred = []
 
@@ -38,53 +43,33 @@ class DataSet():
             X_train, X_test = self.X.iloc[train_idx], self.X.iloc[test_idx]
             y_train, y_test = self.y.iloc[train_idx], self.y.iloc[test_idx]
 
-
             #scaler only trains on train!
             X_train_scaled = self.scaler.fit_transform(X_train)
             X_test_scaled = self.scaler.transform(X_test)
 
-            #print('X_test: ', X_test, '\nX_test_scaled: ', X_test_scaled)
-
-            analysis.fit(X_train_scaled, y_train)
-            #predicting our test unit
-            pred = analysis.predict(X_test_scaled)[0]
+            self.lda.fit(X_train_scaled, y_train)
+            pred = self.lda.predict(X_test_scaled)[0]
 
             y_pred.append(pred)
             y_true.append(y_test.iloc[0])
-        if AccOnly is False:
+        if acc_only is False:
             return classification_report(y_true, y_pred, target_names = ['Сепсис', 'Не сепсис'])
         else:
             return classification_report(y_true, y_pred, output_dict = True)['accuracy']
 
 
-    def predict(self,tested_patient, analysis):
-        X_tested = pd.DatiaFrame(tested_patient, index = [0])
-        X_train_scaled = self.scaler.fit_transform(X)
-        test_scaled = scaler.transform(X_tested)
-        pred = analysis.predict(test_scaled)[0]
-    #    prob = a.predict_proba(test_scaled)[0]
-        return pred
-
-    def most_accurate_method(self):
-        lAccuracy = self.evaluate(LinearDiscriminantAnalysis(), True)
-        qAccuracy = self.evaluate(QuadraticDiscriminantAnalysis(), True)
-
-        if qAccuracy<lAccuracy:
-            return LinearDiscriminantAnalysis()
-        else:
-            return QuadraticDiscriminantAnalysis()
-
-    def predict_using_best(tested_patient):
-        return Predict(tested_patient, MostAccurateMethod())
+    def predict(self,tested_patient):
+        X_tested = pd.DataFrame(tested_patient, index = [0])
+        test_scaled = self.scaler.transform(X_tested)
+        pred = self.lda.predict(test_scaled)[0]
+    #   prob = analysis.predict_proba(test_scaled)[0]
+        return pred #0 or 1
 
     def report(self):
         str = (
-            'Линейный дискриминантный:\n'
+            'Линейный дискриминантный анализ:\n'
             + 'точность - '
-            + f'{self.evaluate(LinearDiscriminantAnalysis(), True):.2%}'
-            + '\n\nКвадратичный дискриминантный:\n'
-            + 'точность - '
-            + f'{self.evaluate(QuadraticDiscriminantAnalysis(), True):.2%}'
+            + f'{self.acc:.2%}'
             )
 
         return str
