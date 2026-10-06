@@ -1,60 +1,76 @@
 import streamlit as st
 from analysis import DataSet
-#import storage_handler
-#import os
-#import sys
-import streamlit as st
+if 'prediction' not in st.session_state:
+    st.session_state['prediction'] = -1
+if 'tested_is_calculated' not in st.session_state:
+    st.session_state['tested_is_calculated'] = False
+if 'dataset_is_edited' not in st.session_state:
+    st.session_state['dataset_is_edited'] = False
+
+def reset_tested_status():
+    st.session_state['tested_is_calculated'] = False
+def set_dataset_edited():
+    st.session_state['dataset_is_edited'] = False
+
 
 data_file = st.file_uploader('Выберите файл',
                              help='Target - первый столбец, 1 - Сепсис, 0 - Не сепсис',
                              type = ['csv'],)
 
 if data_file is None:
-    st.error("Не выбран файл с данными")
+    st.error('Не выбран файл с данными')
 else:
     ds = DataSet(data_file)
 
-    #if st.toggle('Показать отчёт модели'):
-    st.code(ds.report())
+    if st.session_state['dataset_is_edited']:
+        st.code(ds.report())
+        st.session_state['dataset_is_edited'] = True
 
-    with st.container(border=True):
+    #prediction block
+    with st.container(border = True):
         st.markdown('Ввод данных тестируемого пациента:')
+
         sample = ds.sample()
+
+
         tested_patient = st.data_editor(
                 sample,
                 num_rows = 'fixed',
                 use_container_width = True,
-                hide_index = True,)
+                hide_index = True,
+                on_change = reset_tested_status,
+                )
 
-        if st.button('Спрогнозировать'):
-            tp_vector = tested_patient.to_numpy()
-            prediction = ds.predict(tp_vector)
-            if prediction == 1:
-                st.write('Прогноз: **Сепсис**')
-            else:
-                st.write('Прогноз: **Не сепсис**')
 
-#    if st.toggle('Редактор данных'):
-#        with st.container(border=True):
-#
-#            edited_df = st.data_editor(qda.df,num_rows='dynamic',key='data')
-#
-#
-#            col1,col2 = st.columns(2,
-#                                   vertical_alignment = 'center')
-#            with col1:
-#                st.download_button(
-#                    label = 'Экспорт таблицы',
-#                    data = edited_df.to_csv(),
-#                    file_name='saved_data.csv',
-#                    use_container_width=True,)
-#            with col2:
-#                if st.button('Сохранить как по-умолчанию',
-#                             use_container_width=True,):
-#                    try:
-#                        edited_df.to_csv("data.csv", index=False)
-#                        st.success('База данных успешно обновлена')
-#                        st.rerun()
-#                    except Exception as e:
-#                        st.error(f'Не удалось сохранить файл. Ошибка: {e}')
+        col1,col2 = st.columns(2,
+                                    vertical_alignment = 'center')
+        with col1:
+            if st.button('Раcсчитать',width = 'stretch'):
+                tp_vector = tested_patient.to_numpy()
+                st.session_state['prediction'] = ds.predict(tp_vector)
+                st.session_state['tested_is_calculated'] = True
+        with col2:
+            if st.session_state['tested_is_calculated']:
+                if st.session_state['prediction'] == 1:
+                    st.write('Прогноз: **Сепсис**', )
+                else:
+                    st.write('Прогноз: **Не сепсис**', )
 
+        #dataset table block
+        with st.container(border = True):
+            edited_df = st.data_editor(ds.df,
+                                       num_rows = 'dynamic',
+                                       hide_index = False,
+                                       on_change = set_dataset_edited,
+                                       )
+            col1,col2,col3 = st.columns(3,
+                                   vertical_alignment = 'center')
+            with col1:
+                if st.button('Пересчитать',width = 'stretch'):
+                    pass
+            with col2:#load from file
+                if st.button('Отменить изменения',width = 'stretch'):
+                    pass
+            with col3:
+                if st.button('Сохранить файл',width = 'stretch'):
+                    pass
